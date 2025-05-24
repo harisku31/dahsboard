@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Interaktif</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url(wallpaper.png) no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .start-button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background-color: #dad7d7aa;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      text-decoration: none; 
+    }
+
+    .start-button:hover {
+      background-color: #555252dd;
+    }
+
+    .login-container {
+      display: none;
+      flex-direction: column;
+      background: rgba(145, 142, 142, 0.8);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 350px;
+      backdrop-filter: blur(1px);
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.8rem 0.5rem;
+      border: 1px solid #e7e7e7;
+      border-radius: 8px;
+      outline: none;
+      font-size: 1rem;
+      transition: border 0.3s ease;
+    }
+
+    .input-group input:focus {
+      border: 1px solid #18ff03;
+      box-shadow: 0 0 5px #0ce2b7;
+      animation: inputFocus 0.3s ease;
+    }
+
+    @keyframes inputFocus {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+      100% { transform: translateY(0); }
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: white;
+      padding: 0 4px;
+      color: #242222;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: -10px;
+      left: 8px;
+      font-size: 0.8rem;
+      color: #00ffcc;
+      animation: floatLabel 0.2s ease;
+    }
+
+    @keyframes floatLabel {
+      0% { transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-60%) scale(1.1); }
+      100% { transform: translateY(-50%) scale(1); }
+    }
+
+      #submitBtn {
+        width: 100%;
+        padding: 0.7rem;
+        background-color: rgba(16, 37, 156, 0.925);
+        color: rgb(255, 255, 255);
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.3s;
+        display: block;
+        opacity: 0.5;
+      }
+
+      #submitBtn:hover {
+        background-color: #04b9498f;
+        opacity: 1;
+      }
+
+      .input-group input.invalid {
+        border: 1px solid red;
+        animation: shake 0.3s ease;
+      }
+
+      
+      @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-5px); }
+        100% { transform: translateX(0); }
+      }
+
+      .disabled {
+        background-color: rgba(79, 172, 254, 0.2);
+        pointer-events: none;
+      }
+    </style>
+</head>
+<body>
+  
+  <a href="#" id="startButton" class="start-button">Login</a>
+
+ 
+  <div class="login-container" id="loginForm">
+    <h2>Login</h2>
+    <form id="formLogin">
+      <div class="input-group">
+        <input type="text" id="username" name="username" placeholder=" " required />
+        <label for="username">username</label>
+      </div>
+      <div class="input-group">
+        <input type="password" id="password" name="password" placeholder=" " required />
+        <label for="password">Password</label>
+      </div>
+      <button type="submit" id="submitBtn" class="disabled" disabled>Masuk</button>
+    </form>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const formLogin = document.getElementById('formLogin');
+    
+
+    function validateInputs() {
+      if (usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('disabled');
+        submitBtn.style.opacity = '1';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('disabled');
+        submitBtn.style.opacity = '0.5';
+      }
+    }
+
+    startButton.addEventListener('click', function(event) {
+      event.preventDefault();
+      startButton.style.display = 'none';
+      loginForm.style.display = 'flex';
+      usernameInput.focus();
+    });
+
+    usernameInput.addEventListener('input', validateInputs);
+    passwordInput.addEventListener('input', validateInputs);
+
+    formLogin.addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  setTimeout(() => {
+    window.location.href = 'isian.html';
+  }, 500); 
+});
+
+  </script>
+</body>
+</html>

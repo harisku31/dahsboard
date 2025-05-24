@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: url('wallpaper.png') no-repeat center center fixed;
+      background-size: cover; 
+      color: #ffffff; 
+    }
+
+    .menu-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 1000;
+      background: none; 
+      border: none;
+      color: #ffffff; 
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      height: 100%;
+      width: 250px;
+      background-color: #272727;
+      color: #ffffff; /* Set sidebar text color to white */
+      padding: 20px;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+      z-index: 999;
+    }
+
+    .sidebar.active {
+      left: 0;
+    }
+
+    .profile {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+
+    .profile h2 {
+      font-size: 1.1rem;
+      margin-bottom: 3px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
+    }
+
+    .profile small {
+      color: #ffffff; 
+      font-size: 0.8rem;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
+    }
+
+    .sidebar a {
+      display: block;
+      color: white; 
+      text-decoration: none;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover {
+      background-color: #444;
+    }
+
+    .content {
+      padding: 80px 20px;
+      min-height: 100vh;
+      transition: margin-left 0.3s ease;
+      color: #ffffff; 
+    }
+
+    h1, h2, h3, p, small {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8); 
+    }
+
+    .fade-move {
+      animation: fadeMove 0.6s ease;
+    }
+
+    @keyframes fadeMove {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      50% {
+        opacity: 0.5;
+        transform: translateY(-10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .quick-links {
+      display: flex;
+      flex-direction: column;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    .quick-links a {
+      background-color: #fff;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: 0.2s ease;
+    }
+
+    .quick-links a:hover {
+      background-color: #e0e0e0;
+    }
+
+    .dashboard-section {
+      margin-bottom: 30px;
+    }
+
+    .dashboard-section h2 {
+      margin-bottom: 10px;
+      border-bottom: 2px solid #272727;
+      padding-bottom: 5px;
+    }
+
+    .kpi-cards {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .kpi-card {
+      background: white;
+      flex: 1 1 150px;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation-fill-mode: forwards;
+    }
+
+    .kpi-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+      color: #272727;
+    }
+
+    .kpi-card p {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .stat-bars {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      height: 150px;
+      padding: 0 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      position: relative;
+    }
+
+    .stat-bars::before {
+      content: "";
+      position: absolute;
+      left: 30px;
+      bottom: 0;
+      height: 100%;
+      border-left: 2px solid #ccc;
+    }
+
+    .stat-bars .y-labels {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #666;
+      user-select: none;
+    }
+
+    .stat-bars .bar {
+      width: 28px;
+      border-radius: 6px 6px 0 0;
+      background-color: #ccc;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: default;
+      user-select: none;
+      height: 0;
+      animation: growBar 1s ease forwards;
+      position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: background-color 0.3s ease;
+    }
+
+    .stat-bars .bar:hover {
+      background-color: #0056b3;
+      box-shadow: 0 4px 12px rgba(0,86,179,0.6);
+      z-index: 10;
+    }
+
+    .stat-bars .bar.up {
+      background-color: #4caf50; 
+    }
+    .stat-bars .bar.down {
+      background-color: #f44336;
+    }
+    .stat-bars .bar.neutral {
+      background-color: #ff9800; 
+    }
+
+    .bar-number {
+      position: absolute;
+      top: -22px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #333;
+      user-select: none;
+    }
+
+    @keyframes growBar {
+      from { height: 0; }
+      to { height: var(--bar-height); }
+    }
+
+    @keyframes slideDownFade {
+      0% {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      animation: slideDownFade 0.5s ease forwards;
+    }
+
+    table thead {
+      background-color: #007bff;
+      color: white;
+    }
+
+    table th, table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      color: #333; /* Set table text color to dark (black) */
+    }
+
+    table tbody tr {
+      opacity: 0;
+      animation: slideDownFade 0.4s ease forwards;
+      animation-fill-mode: forwards;
+    }
+
+    table tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .notification {
+      background-color: #ffdddd;
+      color: #a94442;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid #a94442;
+      font-weight: bold;
+    }
+
+    .star-rating {
+      display: inline-flex;
+      gap: 6px;
+      font-size: 2rem;
+      user-select: none;
+      cursor: pointer;
+      color: #bbb;
+    }
+    .star-rating .star {
+      transition: color 0.3s ease;
+    }
+    .star-rating .star.filled {
+      color: #f5b301;
+      text-shadow: 0 0 5px #f5b301aa;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="menu-btn" id="menuToggle">&#9776;</button>
+
+  <div class="sidebar" id="sidebar">
+    <div class="profile">
+      <img src="https://via.placeholder.com/60" alt="Foto Profil" />
+      <h2>Profil</h2>
+      <small>pengguna</small>
+    </div>
+    <a id="menuHome">Home</a>
+    <a id="menuDashboard">Dashboard</a>
+    <a id="menuProducts">Produk yang Dijual</a>
+    <a id="menuPurchases">Produk yang Dibeli</a>
+    <a id="menuAbout">Tentang Kami</a>
+  </div>
+
+  <div class="content" id="mainContent">
+    <h1>Selamat datang di Dashboard!</h1>
+    <p>Ini adalah tampilan utama setelah login.</p>
+  </div>
+
+<script>
+  const menuBtn = document.getElementById('menuToggle');
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  const menuHome = document.getElementById('menuHome');
+  const menuDashboard = document.getElementById('menuDashboard');
+  const menuProducts = document.getElementById('menuProducts');
+  const menuPurchases = document.getElementById('menuPurchases');
+  const menuAbout = document.getElementById('menuAbout');
+
+  let menuOpen = false;
+
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+    menuOpen = !menuOpen;
+    menuBtn.innerHTML = menuOpen ? '&times;' : '&#9776;';
+  });
+
+  function updateContent(title, htmlContent) {
+    mainContent.innerHTML = `
+      <h1 class="fade-move">${title}</h1>
+      <div class="fade-move">${htmlContent}</div>
+    `;
+  }
+
+  function animateCountUp(element, targetValue, duration = 2000) {
+    const isPercentage = typeof targetValue === "string" && targetValue.includes("%");
+    const endValue = parseFloat(targetValue);
+    const startTime = performance.now();
+
+    function update(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const currentValue = Math.floor(progress * endValue);
+
+      element.textContent = isPercentage
+        ? `${currentValue}%`
+        : currentValue.toLocaleString();
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    }
+
+    requestAnimationFrame(update);
+  }
+
+  function animateKpiCards() {
+    const cards = document.querySelectorAll('.kpi-card');
+    cards.forEach((card, index) => {
+      card.style.animation = `fadeMove 0.6s ease forwards`;
+      card.style.animationDelay = `${index * 0.15}s`;
+    });
+  }
+
+  menuHome.addEventListener('click', () => {
+    updateContent('Beranda', `
+      <p>Selamat datang kembali! Ini adalah halaman utama Anda.</p>
+      <h2>Sambutan</h2>
+      <p>Halo, semoga harimu menyenangkan!</p>
+      <h2>Informasi Umum</h2>
+      <p>Platform ini digunakan untuk mengelola data dan formulir penting.</p>
+      <h2>Berita Terbaru</h2>
+      <p>📰 Update terbaru: Sistem baru Telah diluncurkan.</p>
+      <h2>Quick Links</h2>
+      <div class="quick-links">
+        <a id="btnFormulir"> <font color="white">📝</font> Formulir</a>
+        <a id="btnStatistik">📊 Statistik</a>
+      </div>
+      <h2>Pengumuman</h2>
+      <p>📢 Jangan lupa untuk mengisi formulir kehadiran minggu ini.</p>
+      <h2>Profil Singkat</h2>
+      <p>👤 Nama: Haris<br>📧 Email: harismirzaku311@gmail.com</p>
+    `);
+
+    setTimeout(() => {
+      document.getElementById('btnFormulir').addEventListener('click', () => {
+        updateContent('Data Formulir', `
+          <p><font color="white">Berikut adalah data semua formulir yang telah dikumpulkan:</font></p>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Nama</th><th>Jenis Formulir</th><th>Tanggal Kirim</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>F001</td><td>Haris</td><td>Kehadiran</td><td>2025-05-15</td></tr>
+              <tr><td>F002</td><td>Kayla</td><td>Feedback</td><td>2025-05-16</td></tr>
+              <tr><td>F003</td><td>Rio</td><td>Pendaftaran</td><td>2025-05-17</td></tr>
+              <tr><td>F004</td><td>Ayu</td><td>Kritik & Saran</td><td>2025-05-18</td></tr>
+              <tr><td>F005</td><td>Dian</td><td>Kehadiran</td><td>2025-05-19</td></tr>
+              <tr><td>F006</td><td>Bagas</td><td>Feedback</td><td>2025-05-20</td></tr>
+              <tr><td>F007</td><td>Lina</td><td>Pendaftaran</td><td>2025-05-21</td></tr>
+              <tr><td>F008</td><td>Ilham</td><td>Kritik & Saran</td><td>2025-05-22</td></tr>
+              <tr><td>F009</td><td>Salsa</td><td>Kehadiran</td><td>2025-05-23</td></tr>
+              <tr><td>F010</td><td>Fajar</td><td>Feedback</td><td>2025-05-24</td></tr>
+              <tr><td>F011</td><td>Nanda</td><td>Pendaftaran</td><td>2025-05-25</td></tr>
+              <tr><td>F012</td><td>Yuni</td><td>Kritik & Saran</td><td>2025-05-26</td></tr>
+              <tr><td>F013</td><td>Raka</td><td>Kehadiran</td><td>2025-05-27</td></tr>
+              <tr><td>F014</td><td>Citra</td><td>Feedback</td><td>2025-05-28</td></tr>
+                            <tr><td>F015</td><td>Andi</td><td>Pendaftaran</td><td>2025-05-29</td></tr>
+              <tr><td>F016</td><td>Bella</td><td>Kritik & Saran</td><td>2025-05-30</td></tr>
+            </tbody>
+          </table>
+        `);
+      });
+
+      document.getElementById('btnStatistik').addEventListener('click', () => {
+        updateContent('Statistik Pengguna', `
+          <p>Berikut statistik pengguna saat ini:</p>
+          <div class="dashboard-section kpi-cards">
+            <div class="kpi-card"><h3>Formulir Masuk</h3><p>520</p></div>
+            <div class="kpi-card"><h3>Pengguna Aktif</h3><p>1350</p></div>
+            <div class="kpi-card"><h3>Tingkat Respon</h3><p>89%</p></div>
+          </div>
+          <div class="stat-bars">
+            <div class="y-labels">
+              <span>100</span>
+              <span>75</span>
+              <span>50</span>
+              <span>25</span>
+              <span>0</span>
+            </div>
+            <div class="bar up" style="--bar-height: 100px;" title="Formulir Masuk"><div class="bar-number">520</div></div>
+            <div class="bar up" style="--bar-height: 130px;" title="Pengguna Aktif"><div class="bar-number">1350</div></div>
+            <div class="bar neutral" style="--bar-height: 80px;" title="Tingkat Respon"><div class="bar-number">89%</div></div>
+            <div class="bar up" style="--bar-height: 105px;" title="Formulir Baru"><div class="bar-number">120</div></div>
+            <div class="bar down" style="--bar-height: 40px;" title="Permintaan Penurunan"><div class="bar-number">50</div></div>
+          </div>
+        `);
+
+        setTimeout(() => {
+          const kpiValues = document.querySelectorAll('.kpi-card p');
+          kpiValues.forEach(el => {
+            const target = el.textContent.replace('%','');
+            animateCountUp(el, target);
+          });
+          animateKpiCards();
+        }, 100);
+      });
+    }, 50);
+
+    sidebar.classList.remove('active');
+    menuBtn.innerHTML = '&#9776;';
+    menuOpen = false;
+  });
+
+  menuDashboard.addEventListener('click', () => {
+    const dataStatistik = {
+      "Formulir Masuk": 520,
+      "Pengguna Aktif": 1350,
+      "Tingkat Respon": "89%",
+      "Kunjungan Website": 3500,
+      "Lead Baru": 150,
+      "Tingkat Konversi": "8.5%"
+    };
+
+    const kpiHTML = Object.entries(dataStatistik).map(([judul, nilai]) => `
+      <div class="kpi-card"><h3>${judul}</h3><p>${nilai}</p></div>
+    `).join('');
+
+    updateContent('Dashboard', `
+      <div class="dashboard-section kpi-cards">${kpiHTML}</div>
+      <div class="dashboard-section chart-container">
+        <div class="chart-title">Grafik Tren Data Penjualan (Minggu ini)</div>
+        <svg id="lineChart" width="100%" height="150" viewBox="0 0 500 150" preserveAspectRatio="none">
+          <polyline id="salesLine" fill="none" stroke="#007bff" stroke-width="3"
+            points="0,130 50,110 100,90 150,80 200,60 250,70 300,50 350,40 400,30 450,20 500,10"/>
+        </svg>
+      </div>
+      <div class="dashboard-section">
+        <h2>Tabel Data Terbaru</h2>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nama Produk</th><th>Jumlah Terjual</th><th>Tanggal</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>001</td><td>Produk A</td><td>50</td><td>2025-05-15</td></tr>
+            <tr><td>002</td><td>Produk B</td><td>30</td><td>2025-05-16</td></tr>
+            <tr><td>003</td><td>Produk C</td><td>70</td><td>2025-05-17</td></tr>
+            <tr><td>004</td><td>Produk D</td><td>20</td><td>2025-05-18</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="dashboard-section notification">
+        ⚠️ <strong>Notifikasi:</strong> Ada update sistem penting yang harus Anda ketahui.
+      </div>
+    `);
+
+    setTimeout(() => {
+      const line = document.getElementById('salesLine');
+      const length = line.getTotalLength();
+      line.style.strokeDasharray = length;
+      line.style.strokeDashoffset = length;
+      line.style.animation = "drawLine 2s ease forwards";
+
+      const kpiValues = document.querySelectorAll('.kpi-card p');
+      kpiValues.forEach(el => {
+        const target = el.textContent.replace('%','');
+        animateCountUp(el, target);
+      });
+      animateKpiCards();
+    }, 100);
+
+    sidebar.classList.remove('active');
+    menuBtn.innerHTML = '&#9776;';
+    menuOpen = false;
+  });
+
+  menuProducts.addEventListener('click', () => {
+    updateContent('Produk yang Dijual', `
+      <h2>Daftar Produk Dijual</h2>
+      <table class="animated-table">
+        <thead>
+          <tr><th>ID</th><th>Nama Produk</th><th>Harga</th><th>Stok</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P001</td><td>Produk makanan</td><td>Rp 100.000</td><td>50</td></tr>
+          <tr><td>P002</td><td>Produk jam tangan</td><td>Rp 150.000</td><td>35</td></tr>
+          <tr><td>P003</td><td>Produk mainan</td><td>Rp 200.000</td><td>20</td></tr>
+          <tr><td>P004</td><td>Produk kaca</td><td>Rp 250.000</td><td>15</td></tr>
+        </tbody>
+      </table>
+    `);
+    sidebar.classList.remove('active');
+    menuBtn.innerHTML = '&#9776;';
+    menuOpen = false;
+    animateTableRows();
+  });
+
+  menuPurchases.addEventListener('click', () => {
+    updateContent('Produk yang Dibeli', `
+      <h2>Daftar Produk Dibeli</h2>
+      <table class="animated-table">
+        <thead>
+          <tr><th>ID</th><th>Nama Produk</th><th>Jumlah</th><th>Tanggal Pembelian</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>B001</td><td>Produk saham</td><td>2</td><td>2025-06-01</td></tr>
+          <tr><td>B002</td><td>Produk market</td><td>1</td><td>2025-06-03</td></tr>
+          <tr><td>B003</td><td>Produk jam tangan</td><td>5</td><td>2025-06-05</td></tr>
+          <tr><td>B004</td><td>Produk mobil</td><td>3</td><td>2025-06-07</td></tr>
+        </tbody>
+      </table>
+    `);
+    sidebar.classList.remove('active');
+    menuBtn.innerHTML = '&#9776;';
+    menuOpen = false;
+    animateTableRows();
+  });
+
+  menuAbout.addEventListener('click', () => {
+    updateContent('Tentang Kami', `
+      <h2>Tentang Kami</h2>
+      <p>Kami adalah perusahaan yang berkomitmen untuk menyediakan produk berkualitas tinggi dan layanan terbaik kepada pelanggan kami.</p>
+      <p>Visi kami adalah menjadi pemimpin dalam industri ini dengan inovasi dan pelayanan yang unggul.</p>
+      
+      <h3>Berikan Rating Anda</h3>
+      <div class="star-rating" id="starRating" aria-label="Rating bintang 5">
+        <span class="star" data-value="1" role="button" tabindex="0" aria-label="Bintang 1">&#9733;</span>
+        <span class="star" data-value="2" role="button" tabindex="0" aria-label="Bintang 2">&#9733;</span>
+        <span class="star" data-value="3" role="button" tabindex="0" aria-label="Bintang 3">&#9733;</span>
+        <span class="star" data-value="4" role="button" tabindex="0" aria-label="Bintang 4">&#9733;</span>
+        <span class="star" data-value="5" role="button" tabindex="0" aria-label="Bintang 5">&#9733;</span>
+      </div>
+      <p id="ratingResult" style="margin-top:10px; font-weight:bold; color:#007bff;">Belum memberikan rating</p>
+    `);
+    sidebar.classList.remove('active');
+    menuBtn.innerHTML = '&#9776;';
+    menuOpen = false;
+    setTimeout(initializeStarRating, 50);
+  });
+
+  function animateTableRows() {
+    const rows = document.querySelectorAll('.animated-table tbody tr');
+    rows.forEach((row, idx) => {
+      row.style.opacity = 0;
+      row.style.transform = 'translateY(-15px)';
+      row.style.animation = `slideDownFade 0.4s ease forwards`;
+      row.style.animationDelay = `${idx * 0.15}s`;
+    });
+  }
+
+  function initializeStarRating() {
+    const stars = document.querySelectorAll('#starRating .star');
+    const ratingResult = document.getElementById('ratingResult');
+    let currentRating = 0;
+
+    function setRating(rating) {
+      currentRating = rating;
+      stars.forEach(star => {
+        if (parseInt(star.dataset.value) <= rating) {
+          star.classList.add('filled');
+        } else {
+          star.classList.remove('filled');
+        }
+      });
+      ratingResult.textContent = `Anda memberikan rating: ${rating} bintang`;
+    }
+
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        setRating(parseInt(star.dataset.value));
+      });
+      star.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setRating(parseInt(star.dataset.value));
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+@keyframes slideDownFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+
+</body>
+</html>
